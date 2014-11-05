@@ -61,6 +61,7 @@ function click2Change( status, last )
 			</j:invoke>
 
 			<j:set var="build" value="${request.findAncestorObject(buildClass)}" />
+                        <j:set var="warning" value="${false}"/>
 			
 	<j:choose>
 		<j:when test="${it.getChecked()==null}">
@@ -87,6 +88,7 @@ function click2Change( status, last )
 										<j:set var="style" value="display:inline-block;" />
 									</j:when>
 									<j:otherwise>
+                                                                                <j:set var="warning" value="${true}"/>
 										<j:set var="style" value="display:inline-block; background-color: lightgray;" />
 									</j:otherwise>
 									<div style="${style}">
@@ -131,6 +133,7 @@ function click2Change( status, last )
 															<j:set var="style" value="" />
 														</j:when>
 														<j:otherwise>
+                                                                                                                        <j:set var="warning" value="${true}"/>
 															<j:set var="style" value="background-color: lightgray;" />
 														</j:otherwise>
 														<div style="${style}">
@@ -164,6 +167,11 @@ function click2Change( status, last )
 					<f:checkbox name="forceDownstream"  checked="false" />
 					<br/>
 					<br/>
+                                        <j:if test="${warning}">
+                                            <div class="warning">
+                                                There is at last one configuration which is not active (marked by grey color). Some execution strategy does not run inactive configurations.
+                                            </div>
+                                        </j:if>
 					<f:submit value="${%Rebuild Matrix}" />
 				</f:form>
 			</div>
