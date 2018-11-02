@@ -58,13 +58,10 @@ import hudson.security.Permission;
  * @author wolfgang
  */
 public class MatrixReloadedAction implements Action {
-
-    private AbstractBuild<?, ?> build;
     private String checked = null;
     private static final Logger logger = Logger.getLogger(MatrixReloadedAction.class.getName());
 
     enum BuildType {
-
         MATRIXBUILD, MATRIXRUN, UNKNOWN
     }
 
@@ -87,10 +84,6 @@ public class MatrixReloadedAction implements Action {
         return Definitions.__URL_NAME;
     }
 
-    public AbstractBuild<?, ?> getBuild() {
-        return build;
-    }
-
     public String getPrefix() {
         return Definitions.__PREFIX;
     }
@@ -105,7 +98,6 @@ public class MatrixReloadedAction implements Action {
 
     public boolean combinationExists(AbstractBuild<?, ?> build, Combination c) {
         MatrixProject mp = null;
-
         if (build instanceof MatrixBuild) {
             mp = (MatrixProject) build.getProject();
         } else if (build instanceof MatrixRun) {
@@ -136,15 +128,16 @@ public class MatrixReloadedAction implements Action {
         /*
          * Generate the parameters
          */
-        Set<String> keys = formData.keySet();
-        for (String key : keys) {
+        Set<Map.Entry<String, String[]>> entries = formData.entrySet();
+        for (Map.Entry<String, String[]> entry : entries) {
 
             /*
              * The special form field, providing information about the build we
              * decent from
              */
-            if (key.equals(Definitions.__PREFIX + "NUMBER")) {
-                String value = formData.get(key)[0];
+
+            if (entry.getKey().equals(Definitions.__PREFIX + "NUMBER")) {
+                String value = entry.getValue()[0];
                 try {
                     raction.setBaseBuildNumber( Integer.parseInt(value) );
                     logger.info("[MRP] Build number is " + raction.getBaseBuildNumber());
@@ -162,11 +155,11 @@ public class MatrixReloadedAction implements Action {
             /*
              * Check the fields of the form
              */
-            if (key.startsWith(Definitions.__PREFIX)) {
-                String[] vs = key.split(Definitions.__DELIMITER, 2);
+            if (entry.getKey().startsWith(Definitions.__PREFIX)) {
+                String[] vs = entry.getKey().split(Definitions.__DELIMITER, 2);
                 try {
                     if (vs.length > 1) {
-                        logger.info("[MRP] adding " + key);
+                        logger.info("[MRP] adding " + entry.getKey());
                         raction.addConfiguration( Combination.fromString(vs[1]), true );
                     }
 
@@ -177,10 +170,9 @@ public class MatrixReloadedAction implements Action {
                 }
             }
             //if the key is set we set the value on the build status for later on
-            if (key.startsWith("forceDownstream")) {
+            if (entry.getKey().startsWith("forceDownstream")) {
                 raction.setRebuildDownstream( true );
             }
-
         }
         
         return raction;
@@ -203,39 +195,25 @@ public class MatrixReloadedAction implements Action {
 
         if (req.findAncestor(MatrixRun.class) != null) {
             type = BuildType.MATRIXRUN;
-            build = ((MatrixRun) mbuild).getParentBuild();
         } else if (req.findAncestor(MatrixBuild.class) != null) {
             type = BuildType.MATRIXBUILD;
-            build = mbuild;
         } else {
             type = BuildType.UNKNOWN;
         }
 
         Map map = req.getParameterMap();
-        
-        /*
-        System.out.println("VALUES:");
-        Set<String> keys = map.keySet();
-        for (String key : keys) {
-            System.out.print(key + ": ");
-            for (String val : req.getParameterValues(key)) {
-                System.out.print(val + "; ");
-            }
-            System.out.println();
-        }
-        */
         RebuildAction raction = getRebuildAction(map);
         
         
         /*
         * Get the parameters of the build, if any and add them to the build
         */
-        ParametersAction pactions = build.getAction(ParametersAction.class);
+        ParametersAction pactions = mbuild.getAction(ParametersAction.class);
 
         /*
          * Schedule the MatrixBuild
          */        
-        Hudson.getInstance().getQueue().schedule(build.getProject(), 0, pactions, raction, new CauseAction(new Cause.UserCause()));
+        Hudson.getInstance().getQueue().schedule(mbuild.getProject(), 0, pactions, raction, new CauseAction(new Cause.UserCause()));
         
         /*
          * Depending on where the form was submitted, the number of levels to

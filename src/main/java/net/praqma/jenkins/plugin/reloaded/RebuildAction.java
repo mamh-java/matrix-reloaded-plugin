@@ -11,7 +11,7 @@ import hudson.model.Action;
  * @author wolfgang
  *
  */
-public class RebuildAction implements Action {
+public class RebuildAction implements Action, Cloneable {
 
 	/**
      * Determines whether a configuration should be reused or rebuild
@@ -28,8 +28,7 @@ public class RebuildAction implements Action {
 	 */
 	private boolean rebuildDownstream = false; 
 	
-	public RebuildAction() {
-	}
+	public RebuildAction() { }
 	
 	public void setBaseBuildNumber( int baseBuildNumber ) {
 		this.baseBuildNumber = baseBuildNumber;
@@ -68,7 +67,7 @@ public class RebuildAction implements Action {
     /**
      * Add a configuration to the build state
      *
-     * @param config A String representing the
+     * @param combination A String representing the
      *            {@link hudson.matrix.MatrixConfiguration} given as its
      *            {@link hudson.matrix.Combination}
      * @param reuse A boolean to determine whether to reuse the

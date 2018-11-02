@@ -24,6 +24,15 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
+import hudson.matrix.*;
+import hudson.model.ParameterValue;
+import hudson.model.Result;
+import jenkins.model.Jenkins;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,72 +40,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import hudson.matrix.Axis;
-import hudson.matrix.AxisList;
-import hudson.matrix.Combination;
-import hudson.matrix.MatrixRun;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
-import hudson.model.ParameterValue;
-import hudson.model.Result;
-
-import org.junit.BeforeClass;
-import org.jvnet.hudson.test.HudsonTestCase;
+import static junit.framework.TestCase.assertNotNull;
 
 /**
  * Class for testing the Run Listener implementation
  * @author wolfgang
  *
  */
-public class MatrixReloadedListenerTest extends HudsonTestCase {
-    private AxisList axes = null;
+public class MatrixReloadedListenerTest {
 
-    private Combination c = null;
+    private static AxisList axes = null;
+    private static Combination c = null;
+
+    @Rule
+    public JenkinsRule jr = new JenkinsRule();
 
     @BeforeClass
-    public void init() {
-
+    public static void init() {
         axes = new AxisList(new Axis("dim1", "1", "2", "3"), new Axis("dim2", "a", "b", "c"));
-
         Map<String, String> r = new HashMap<String, String>();
         r.put("dim1", "1");
         r.put("dim2", "a");
         c = new Combination(r);
     }
 
-    public void testReloadedForm() throws IOException, InterruptedException, ExecutionException {
-        init();
-
-    }
-
+    @Test
     public void testReloaded() throws IOException, InterruptedException, ExecutionException {
-        init();
-
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = jr.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
-
         List<ParameterValue> values = new ArrayList<ParameterValue>();
         /* UUID */
         String uuid = "myuuid";
         //BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
-
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);
         Result r = mr.getResult();
-
         assertNotNull(mb);
     }
 
+    @Test
     public void testNoReloaded() throws IOException, InterruptedException, ExecutionException {
-        init();
-
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = jr.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
-
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);
         Result r = mr.getResult();
-
         assertNotNull(mb);
     }
 }

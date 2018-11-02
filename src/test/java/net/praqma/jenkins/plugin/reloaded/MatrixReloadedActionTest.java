@@ -24,21 +24,12 @@
 
 package net.praqma.jenkins.plugin.reloaded;
 
-import hudson.matrix.Axis;
-import hudson.matrix.AxisList;
-import hudson.matrix.Combination;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
-import hudson.model.AbstractBuild;
-import hudson.model.Cause;
-import hudson.model.FreeStyleProject;
-import hudson.model.FreeStyleBuild;
-import hudson.model.ParameterValue;
-import hudson.model.ParameterDefinition;
-import hudson.model.ParametersAction;
-import hudson.model.ParametersDefinitionProperty;
-import hudson.model.StringParameterDefinition;
-import hudson.model.StringParameterValue;
+import hudson.matrix.*;
+import hudson.model.*;
+import net.praqma.jenkins.plugin.reloaded.MatrixReloadedAction.BuildType;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,78 +38,59 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedAction;
-import net.praqma.jenkins.plugin.reloaded.MatrixReloadedAction.BuildType;
-import net.sf.json.JSONObject;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.*;
 
-import org.jvnet.hudson.test.HudsonTestCase;
+public class MatrixReloadedActionTest {
 
-public class MatrixReloadedActionTest extends HudsonTestCase {
+    @Rule
+    public JenkinsRule r = new JenkinsRule();
+
+    @Test
     public void testGetDisplayName() {
         MatrixReloadedAction mra = new MatrixReloadedAction();
-
         assertEquals(mra.getDisplayName(), Definitions.__DISPLAY_NAME);
     }
 
+    @Test
     public void testGetIconFileName() {
         MatrixReloadedAction mra = new MatrixReloadedAction();
-
         assertEquals(mra.getIconFileName(), Definitions.__ICON_FILE_NAME);
     }
 
+    @Test
     public void testGetUrlName() {
         MatrixReloadedAction mra = new MatrixReloadedAction();
-
         assertEquals(mra.getUrlName(), Definitions.__URL_NAME);
     }
 
-    // public void testGetBuild() throws IOException, InterruptedException,
-    // ExecutionException
-    // {
-    // /* Create a previous build */
-    // init();
-    //
-    // MatrixProject mp = createMatrixProject( "test" );
-    // mp.setAxes( axes );
-    //
-    // MatrixBuild mb = mp.scheduleBuild2( 0 ).get();
-    //
-    // MatrixReloadedAction action = mb.getAction( MatrixReloadedAction.class );
-    // assertNotNull( action );
-    // assertTrue( action.getBuild() instanceof AbstractBuild<?, ?> );
-    // }
-
+    @Test
     public void testPrefix() {
         MatrixReloadedAction mra = new MatrixReloadedAction();
 
         assertEquals(mra.getPrefix(), Definitions.__PREFIX);
     }
 
+    @Test
     public void testGetChecked1() {
         MatrixReloadedAction mra = new MatrixReloadedAction();
 
         assertNull(mra.getChecked());
     }
 
+    @Test
     public void testGetChecked2() {
         MatrixReloadedAction mra = new MatrixReloadedAction("test");
-
         assertNotNull(mra.getChecked());
         assertEquals(mra.getChecked(), "test");
     }
 
-    public void testBuildType() {
-        BuildType bt = BuildType.MATRIXBUILD;
-    }
-    
-    
-   
-    
-    
-    public void testCombinationExists() throws InterruptedException, ExecutionException, IOException {
+    @Test
+    public void testCombinationExists() throws Exception {
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
         List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
         list.add(new StringParameterDefinition("key", "value"));
@@ -138,11 +110,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         
         assertTrue( mra.combinationExists(mb, c_good) );
     }
-    
+
+    @Test
     public void testCombinationExists2() throws InterruptedException, ExecutionException, IOException {
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
         List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
         list.add(new StringParameterDefinition("key", "value"));
@@ -157,33 +130,24 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         values.add(new StringParameterValue("key", "value"));
 
         MatrixBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction(values)).get();
-        
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        
         assertFalse( mra.combinationExists(mb, c_bad) );
-    }    
-    
+    }
 
-    
+    @Test
     public void testCombinationExists3() throws InterruptedException, ExecutionException, IOException {
         init();
-
-        FreeStyleProject mp = createFreeStyleProject("test");
-
+        FreeStyleProject mp = r.createFreeStyleProject("test");
         FreeStyleBuild mb = mp.scheduleBuild2(0, new Cause.UserCause(), new ParametersAction()).get();
-        
         MatrixReloadedAction mra = new MatrixReloadedAction();
-        
         assertFalse( mra.combinationExists(mb, c_good) );
     }
 
     private AxisList axes = null;
-
     private Combination c_good = null;
     private Combination c_bad = null;
 
     public void init() {
-
         axes = new AxisList(new Axis("dim1", "1", "2"), new Axis("dim2", "a", "b"));
 
         Map<String, String> r = new HashMap<String, String>();
@@ -197,11 +161,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         c_bad = new Combination(r2);
     }
 
+    @Test
     public void testForm() throws IOException, InterruptedException, ExecutionException {
         /* Create a previous build */
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
         List<ParameterDefinition> list = new ArrayList<ParameterDefinition>();
         list.add(new StringParameterDefinition("key", "value"));
@@ -232,11 +197,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         mra.getRebuildAction(form);
     }
 
+    @Test
     public void testFormNoParms() throws IOException, InterruptedException, ExecutionException {
         /* Create a previous build */
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
@@ -255,11 +221,12 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         mra.getRebuildAction(form);
     }
 
-    public void testFormFalseParms() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    public void testFormFalseParms() throws Exception {
         /* Create a previous build */
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
@@ -276,12 +243,13 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         mra.getRebuildAction(form);
     }
 
+    @Test
     public void testFormFalseNumberParm() throws IOException, InterruptedException,
             ExecutionException {
         /* Create a previous build */
         init();
 
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
 
         MatrixBuild mb = mp.scheduleBuild2(0).get();
@@ -295,15 +263,13 @@ public class MatrixReloadedActionTest extends HudsonTestCase {
         mra.getRebuildAction(form);
     }
 
+    @Test
     public void testEnv() throws IOException, InterruptedException, ExecutionException {
         /* Create a previous build */
         init();
-
-        MatrixProject mp = createMatrixProject("test");
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
-
         MatrixBuild mb = mp.scheduleBuild2(0).get();
-
         MatrixReloadedEnvironmentContributor mrec = new MatrixReloadedEnvironmentContributor();
         mrec.buildEnvironmentFor(mb, mb.getEnvironment(null), null);
     }

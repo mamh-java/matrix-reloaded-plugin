@@ -18,35 +18,37 @@ import java.util.concurrent.ExecutionException;
 
 
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
+import org.jvnet.hudson.test.JenkinsRule;
 
-public class MatrixReloadedBuildListenerTest extends HudsonTestCase {
-    private AxisList axes = null;
+import static junit.framework.TestCase.assertNotNull;
 
-    private Combination c = null;
+public class MatrixReloadedBuildListenerTest {
+
+    @Rule
+    public JenkinsRule r = new JenkinsRule();
+    private static AxisList axes = null;
+    private static Combination c = null;
 
     @BeforeClass
-    public void init() {
-
+    public static void init() {
         axes = new AxisList(new Axis("dim1", "1", "2", "3"), new Axis("dim2", "a", "b", "c"));
-
         Map<String, String> r = new HashMap<String, String>();
         r.put("dim1", "1");
         r.put("dim2", "a");
         c = new Combination(r);
     }
-    
-    public void testReloaded() throws IOException, InterruptedException, ExecutionException {
-        init();
 
-        MatrixProject mp = createMatrixProject("test");
+    @Test
+    public void testReloaded() throws IOException, InterruptedException, ExecutionException {
+        MatrixProject mp = r.createProject(MatrixProject.class, "test");
         mp.setAxes(axes);
 
         List<ParameterValue> values = new ArrayList<ParameterValue>();
         /* UUID */
         String uuid = "myuuid";
-        //BuildState bs = MatrixReloadedState.getInstance().getBuildState(uuid);
-
         MatrixBuild mb = mp.scheduleBuild2(0).get();
         MatrixRun mr = mb.getRun(c);
         Result r = mr.getResult();
