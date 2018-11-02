@@ -54,7 +54,8 @@ public class RebuildAction implements Action, Cloneable {
 		
 		return ra;
 	}
-	
+
+	@edu.umd.cs.findbugs.annotations.SuppressFBWarnings("CN_IDIOM_NO_SUPER_CALL")
 	public RebuildAction clone( ) {
 		RebuildAction ra = new RebuildAction();
 		ra.baseBuildNumber = this.baseBuildNumber;
