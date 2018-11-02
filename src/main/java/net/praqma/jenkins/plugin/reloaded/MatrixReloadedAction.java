@@ -195,6 +195,7 @@ public class MatrixReloadedAction implements Action {
 
         if (req.findAncestor(MatrixRun.class) != null) {
             type = BuildType.MATRIXRUN;
+            mbuild = ((MatrixRun)mbuild).getParentBuild();
         } else if (req.findAncestor(MatrixBuild.class) != null) {
             type = BuildType.MATRIXBUILD;
         } else {
