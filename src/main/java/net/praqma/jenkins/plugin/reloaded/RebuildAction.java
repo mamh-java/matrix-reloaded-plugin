@@ -65,29 +65,11 @@ public class RebuildAction implements Action {
 		return ra;
 	}
 	
-    /**
-     * Add a configuration to the build state
-     *
-     * @param config A String representing the
-     *            {@link hudson.matrix.MatrixConfiguration} given as its
-     *            {@link hudson.matrix.Combination}
-     * @param reuse A boolean to determine whether to reuse the
-     *            {@link hudson.model.Run} or not
-     */
+
     public void addConfiguration(Combination combination, boolean reuse) {
         this.configurations.put(combination.toString(), reuse);
     }
-    
-    /**
-     * Returns whether or not to rebuild the {@link hudson.model.Run} If the
-     * combination is not in the database, the method returns true, meaning
-     * the run will build.
-     *
-     * @param combination A {@link hudson.matrix.MatrixConfiguration} given
-     * as its {@link hudson.matrix.Combination}
-     * @return A boolean determining whether or nor to rebuild the
-     *         {@link hudson.model.Run}
-     */
+
     public boolean getConfiguration(Combination combination) {
         if (configurations.containsKey(combination.toString())) {
             return configurations.get(combination.toString());
