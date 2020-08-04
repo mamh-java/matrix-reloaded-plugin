@@ -186,14 +186,6 @@ public class MatrixReloadedAction implements Action {
         return raction;
     }
 
-    /**
-     * This submits the action added by the run listener, onCompleted and will thus matrix reload a matrix build.
-     * @param req
-     * @param rsp
-     * @throws ServletException
-     * @throws IOException
-     * @throws InterruptedException
-     */
     public void doConfigSubmit(StaplerRequest req, StaplerResponse rsp) throws ServletException,
             IOException, InterruptedException {
         Hudson.getInstance().checkPermission(getPermission());
