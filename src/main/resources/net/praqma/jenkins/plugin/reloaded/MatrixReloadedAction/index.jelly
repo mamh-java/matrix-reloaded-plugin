@@ -80,22 +80,42 @@ function click2Change( status, last )
 					<j:choose>
 						<!-- Optimized case when there's only one dimension to the axis (or zero dimension) -->
 						<j:when test="${empty(o.x) and empty(o.y)}">
-							<h2>${%Configurations}</h2>
-							<j:forEach var="p" items="${o.rows[0][0]}">
-								<j:choose>
-									<j:when test="${it.combinationExists(build, p.combination)}">
-										<j:set var="style" value="display:inline-block;" />
-									</j:when>
-									<j:otherwise>
-										<j:set var="warning" value="${true}"/>
-										<j:set var="style" value="display:inline-block; background-color: lightgray;" />
-									</j:otherwise>
-									<div style="${style}">
-										<!-- <d:invokeBody /> -->
-										<st:include page="main.jelly" />
-									</div>
-								</j:choose>
-							</j:forEach>
+							<table id="configuration-matrix">
+								<tr class="matrix-row">
+									<td class="matrix-title">
+										${%Configurations}
+									</td>
+									<td class="matrix-title"/>
+									<td class="matrix-title"/>
+									<td class="matrix-title"/>
+									<td class="matrix-title"/>
+									<td class="matrix-title"/>
+								</tr>
+								<j:forEach var="r" items="${o.agentTable}">
+									<tr>
+										<td class="matrix-leftcolumn">
+											${o.z[0].name}
+										</td>
+										<j:forEach var="p" items="${r}">
+											<td class="matrix-cell">
+												<j:choose>
+													<j:when test="${it.combinationExists(build, p.combination)}">
+														<j:set var="style" value="display:inline-block;" />
+													</j:when>
+													<j:otherwise>
+														<j:set var="warning" value="${true}"/>
+														<j:set var="style" value="display:inline-block; background-color: lightgray;" />
+													</j:otherwise>
+													<div style="${style}">
+														<!-- <d:invokeBody /> -->
+														<st:include page="main.jelly" />
+													</div>
+												</j:choose>
+											</td>
+										</j:forEach>
+									</tr>
+								</j:forEach>
+							</table>
 						</j:when>
 						<j:otherwise>
 							<table id="configuration-matrix">
@@ -109,7 +129,7 @@ function click2Change( status, last )
 										<j:forEach begin="1" end="${o.repeatX(loop.index)}">
 											<j:forEach var="v" items="${x.values}">
 												<td class="matrix-header" colspan="${o.width(loop.index)}" tooltip="${h.xmlEscape(x.name)}">
-													${v}
+													${x.name} = ${v}
 												</td>
 											</j:forEach>
 										</j:forEach>
@@ -117,12 +137,12 @@ function click2Change( status, last )
 								</j:forEach>
 
 								<!-- Y-axis -->
-								<j:forEach var="r" items="${o.rows}">
+								<j:forEach var="r" items="${o.labelTable}">
 									<tr>
 										<j:forEach var="y" items="${o.y}" varStatus="loop">
 											<j:if test="${r.drawYHeader(loop.index)!=null}">
 												<td class="matrix-leftcolumn" rowspan="${o.height(loop.index)}" tooltip="${h.xmlEscape(y.name)}">
-													${r.drawYHeader(loop.index)}
+													${y.name} = ${r.drawYHeader(loop.index)}
 												</td>
 											</j:if>
 										</j:forEach>
