@@ -78,8 +78,7 @@ function click2Change( status, last )
 				<f:form method="post" action="configSubmit" name="matrixreloaded">
 					<j:set var="prefix" value="${it.getPrefix()}" />
 					<j:choose>
-						<!-- Optimized case when there's only one dimension to the axis (or 
-							zero dimension) -->
+						<!-- Optimized case when there's only one dimension to the axis (or zero dimension) -->
 						<j:when test="${empty(o.x) and empty(o.y)}">
 							<h2>${%Configurations}</h2>
 							<j:forEach var="p" items="${o.rows[0][0]}">
@@ -99,18 +98,19 @@ function click2Change( status, last )
 							</j:forEach>
 						</j:when>
 						<j:otherwise>
-							<h2>${%Configuration Matrix}</h2>
-							<table border="1" class="middle-align center-align">
+							<table id="configuration-matrix">
 								<!-- X-axis -->
 								<j:forEach var="x" items="${o.x}" varStatus="loop">
-									<tr>
+									<tr class="matrix-row">
 										<!-- space for Y-axis -->
 										<j:if test="${!empty(o.y)}">
-											<td colspan="${size(o.y)}" />
+											<td id="matrix-title" colspan="${size(o.y)}">${%Configuration Matrix}</td>
 										</j:if>
 										<j:forEach begin="1" end="${o.repeatX(loop.index)}">
 											<j:forEach var="v" items="${x.values}">
-												<td colspan="${o.width(loop.index)}">${v}</td>
+												<td class="matrix-header" colspan="${o.width(loop.index)}" tooltip="${h.xmlEscape(x.name)}">
+													${v}
+												</td>
 											</j:forEach>
 										</j:forEach>
 									</tr>
@@ -121,12 +121,14 @@ function click2Change( status, last )
 									<tr>
 										<j:forEach var="y" items="${o.y}" varStatus="loop">
 											<j:if test="${r.drawYHeader(loop.index)!=null}">
-												<td rowspan="${o.height(loop.index)}">${r.drawYHeader(loop.index)}</td>
+												<td class="matrix-leftcolumn" rowspan="${o.height(loop.index)}" tooltip="${h.xmlEscape(y.name)}">
+													${r.drawYHeader(loop.index)}
+												</td>
 											</j:if>
 										</j:forEach>
 
 										<j:forEach var="c" items="${r}">
-											<td>
+											<td class="matrix-cell">
 												<j:forEach var="p" items="${c}">
 													<j:choose>
 														<j:when test="${it.combinationExists(build, p.combination)}">
@@ -151,16 +153,16 @@ function click2Change( status, last )
 					</j:choose>
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
-					
-					<span style="font-weight:bold">${%Select}: </span> 
-					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> - 
-					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> - 
-					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> - 
-					<a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> - 
-					<a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> - 
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> - 
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> - 
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> - 
+
+					<span style="font-weight:bold">${%Select}: </span>
+					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> -
+					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> -
+					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> -
+					<a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> -
+					<a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> -
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> -
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> -
+					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> -
 					<a href="#" onclick="click2Change({}, 0);">${%None}</a>
 					<br/>
 					<label>Matrix Reload downstream builds: </label>
