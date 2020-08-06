@@ -61,8 +61,8 @@ function click2Change( status, last )
 			</j:invoke>
 
 			<j:set var="build" value="${request.findAncestorObject(buildClass)}" />
-                        <j:set var="warning" value="${false}"/>
-			
+			<j:set var="warning" value="${false}"/>
+
 	<j:choose>
 		<j:when test="${it.getChecked()==null}">
 			<j:set var="o" value="${build.layouter}" />
@@ -87,7 +87,7 @@ function click2Change( status, last )
 										<j:set var="style" value="display:inline-block;" />
 									</j:when>
 									<j:otherwise>
-                                                                                <j:set var="warning" value="${true}"/>
+										<j:set var="warning" value="${true}"/>
 										<j:set var="style" value="display:inline-block; background-color: lightgray;" />
 									</j:otherwise>
 									<div style="${style}">
@@ -135,7 +135,7 @@ function click2Change( status, last )
 															<j:set var="style" value="" />
 														</j:when>
 														<j:otherwise>
-                                                                                                                        <j:set var="warning" value="${true}"/>
+															<j:set var="warning" value="${true}"/>
 															<j:set var="style" value="background-color: lightgray;" />
 														</j:otherwise>
 														<div style="${style}">
@@ -153,27 +153,40 @@ function click2Change( status, last )
 					</j:choose>
 					<input type="hidden" name="${it.getPrefix()}NUMBER" value="${build.number}" />
 					<br />
-
-					<span style="font-weight:bold">${%Select}: </span>
-					<a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> -
-					<a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> -
-					<a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> -
-					<a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> -
-					<a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> -
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> -
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> -
-					<a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> -
-					<a href="#" onclick="click2Change({}, 0);">${%None}</a>
+					<table id="configuration-matrix">
+					<tr class="matrix-row" colspan="3"><td><span style="font-weight:bold">${%Select}: </span></td></tr>
+					<tr>
+					<td class="matrix-leftcolumn"/>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({0:true}, 0);">${%Successful}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({1:true}, 0);">${%Unstable}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({2:true}, 0);">${%Failed}</a> -</td>
+					</tr>
+					<tr>
+					<td class="matrix-leftcolumn"/>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({4:true}, 0);">${%Aborted}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({3:true}, 0);">${%Not run}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 0);">${%Run}</a> -</td>
+					</tr>
+					<tr>
+					<td class="matrix-leftcolumn"/>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({0:true,1:true,2:true,4:true}, 1);">${%Run in this build}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({0:true,1:true,2:true,3:true,4:true}, 0);">${%All}</a> -</td>
+					<td class="matrix-cell"><a href="#" onclick="click2Change({}, 0);">${%None}</a></td>
+					</tr>
+					</table>
 					<br/>
-					<label>Matrix Reload downstream builds: </label>
-					<f:checkbox name="forceDownstream"  checked="false" />
+					<table id="configuration-matrix">
+					<tr>
+					<td class="matrix-leftcolumn"><label>Matrix Reload downstream builds: </label></td>
+					<td class="matrix-cell"><f:checkbox name="forceDownstream"  checked="false" /></td>
+					</tr>
+					</table>
 					<br/>
-					<br/>
-                                        <j:if test="${warning}">
-                                            <div class="warning">
-                                                There is at last one configuration which is not active (marked by grey color). Some execution strategy does not run inactive configurations.
-                                            </div>
-                                        </j:if>
+					<j:if test="${warning}">
+					<div class="warning">
+						There is at last one configuration which is not active (marked by grey color). Some execution strategy does not run inactive configurations.
+					</div>
+					</j:if>
 					<f:submit value="${%Rebuild Matrix}" />
 				</f:form>
 			</div>
