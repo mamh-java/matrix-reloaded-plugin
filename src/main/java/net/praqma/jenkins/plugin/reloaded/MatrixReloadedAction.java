@@ -23,33 +23,29 @@
  */
 package net.praqma.jenkins.plugin.reloaded;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-
-import org.jfree.util.Log;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
 import hudson.matrix.Combination;
-import hudson.matrix.MatrixConfiguration;
-import hudson.matrix.MatrixRun;
 import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixProject;
+import hudson.matrix.MatrixRun;
 import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.Cause;
 import hudson.model.CauseAction;
 import hudson.model.Hudson;
 import hudson.model.ParametersAction;
 import hudson.security.Permission;
+import net.sf.json.JSONException;
+import org.jfree.util.Log;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * The Matrix Reloaded Action class. This enables the plugin to add the link
@@ -238,5 +234,46 @@ public class MatrixReloadedAction implements Action {
         } else {
             rsp.sendRedirect("../../");
         }
+    }
+
+    public boolean isMatrixRun(AbstractBuild build){
+        return build instanceof MatrixRun;
+    }
+    public boolean isMatrixBuild(AbstractBuild build){
+        return build instanceof MatrixBuild;
+    }
+
+    public String getPreviousAxisUrl(AbstractBuild build){
+        if(build instanceof MatrixRun){
+            MatrixRun matrixRun = (MatrixRun) build;
+            MatrixBuild matrixBuild = ((MatrixRun) build).getParentBuild();
+            List<MatrixRun> runs = matrixBuild.getExactRuns();
+            System.out.println("prev: " + runs);
+            int cI = runs.indexOf(matrixRun);
+            int nI = cI - 1;
+            if(cI == 0){{
+                nI = runs.size()-1;
+            }}
+            String url = runs.get(nI).getUrl();
+            return url;
+        }
+        return build.getUrl();
+    }
+
+    public String getNextAxisUrl(AbstractBuild build){
+        if(build instanceof MatrixRun){
+            MatrixRun matrixRun = (MatrixRun) build;
+            MatrixBuild matrixBuild = ((MatrixRun) build).getParentBuild();
+            List<MatrixRun> runs = matrixBuild.getExactRuns();
+            System.out.println("next: " + runs);
+            int cI = runs.indexOf(matrixRun);
+            int nI = cI + 1;
+            if(cI == runs.size()-1){{
+                nI = 0;
+            }}
+            String url = runs.get(nI).getUrl();
+            return url;
+        }
+        return build.getUrl();
     }
 }
