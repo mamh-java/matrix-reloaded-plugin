@@ -24,5 +24,16 @@
  
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-    <l:task icon="${action.iconFileName}" href="${h.getActionUrl(it.url,action)}" title="${action.getDisplayName()}" permission="${action.permission}"/>
+    <j:if test="${action.isMatrixBuild(it)}">
+        <l:task icon="${action.iconFileName}" href="${h.getActionUrl(it.url,action)}" title="${action.getDisplayName()}" permission="${action.permission}"/>
+    </j:if>
+    <!-- previous axis and next axis -->
+    <j:if test="${action.isMatrixRun(it)}">
+        <l:task icon="icon-previous icon-md" href="${request.getRootPath()}/${action.getPreviousAxisUrl(it)}" title="${%Previous Axis}" permission="${action.permission}"/>
+    </j:if>
+
+    <j:if test="${action.isMatrixRun(it)}">
+        <l:task icon="icon-next icon-md" href="${request.getRootPath()}/${action.getNextAxisUrl(it)}" title="${%Next Axis}" permission="${action.permission}"/>
+    </j:if>
+    <!-- it = hudson.matrix.MatrixRun  -->
 </j:jelly>
