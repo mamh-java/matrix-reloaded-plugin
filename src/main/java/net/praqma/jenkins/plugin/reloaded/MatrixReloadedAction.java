@@ -24,6 +24,7 @@
 package net.praqma.jenkins.plugin.reloaded;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -238,5 +239,47 @@ public class MatrixReloadedAction implements Action {
         } else {
             rsp.sendRedirect("../../");
         }
+    }
+
+    public boolean isMatrixRun(AbstractBuild build){
+        return build instanceof MatrixRun;
+    }
+
+    public boolean isMatrixBuild(AbstractBuild build){
+        return build instanceof MatrixBuild;
+    }
+
+    public String getPreviousAxisUrl(AbstractBuild build){
+        if(build instanceof MatrixRun){
+            MatrixRun matrixRun = (MatrixRun) build;
+            MatrixBuild matrixBuild = ((MatrixRun) build).getParentBuild();
+            List<MatrixRun> runs = matrixBuild.getExactRuns();
+
+            int cIndex = runs.indexOf(matrixRun);
+            int pIndex = cIndex - 1;
+            if(cIndex == 0){{
+                pIndex = runs.size()-1;
+            }}
+            String url = runs.get(pIndex).getUrl();
+            return url;
+        }
+        return build.getUrl();
+    }
+
+    public String getNextAxisUrl(AbstractBuild build){
+        if(build instanceof MatrixRun){
+            MatrixRun matrixRun = (MatrixRun) build;
+            MatrixBuild matrixBuild = ((MatrixRun) build).getParentBuild();
+            List<MatrixRun> runs = matrixBuild.getExactRuns();
+
+            int cIndex = runs.indexOf(matrixRun);
+            int nIndex = cIndex + 1;
+            if(cIndex == runs.size()-1){{
+                nIndex = 0;
+            }}
+            String url = runs.get(nIndex).getUrl();
+            return url;
+        }
+        return build.getUrl();
     }
 }
